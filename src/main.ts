@@ -1,5 +1,4 @@
 import Fastify, { FastifyServerOptions, RouteShorthandOptions } from "fastify";
-import { mkDbConn } from "./db";
 import cors from "@fastify/cors";
 
 import { wsHandlerPlugin } from "./handlers/yjs-ws";

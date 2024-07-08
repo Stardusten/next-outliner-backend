@@ -94,15 +94,22 @@ const mkWSSharedDoc = (
     bindState: async (doc) => {
       const persistedYdoc = await ldb.getYDoc(doc.name);
       console.log(
-        "load doc from db, size=",
+        "load doc from db, blocks-size=",
         persistedYdoc.getMap("blocks").size,
+        ", repeatables-size=",
+        persistedYdoc.getMap("repeatables").size,
       );
       const newUpdates = Y.encodeStateAsUpdate(doc);
       await ldb.storeUpdate(doc.name, newUpdates);
       Y.applyUpdate(doc, Y.encodeStateAsUpdate(persistedYdoc));
       doc.on("update", (update) => {
         ldb.storeUpdate(doc.name, update);
-        console.log("persist update to ldb, size=", doc.getMap("blocks").size);
+        console.log(
+          "persist update to ldb, blocks-size=",
+          doc.getMap("blocks").size,
+          ", repeatables-size=",
+          doc.getMap("repeatables").size,
+        );
       });
     },
     writeState: async () => {},

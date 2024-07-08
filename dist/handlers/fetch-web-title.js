@@ -58,7 +58,6 @@ const fetchWebTitlePlugin = (fastify, opts, done) => {
                 ? webpageUrl.slice(7)
                 : webpageUrl;
         const title = (await inner("https://" + rawUrl)) || (await inner("http://" + rawUrl));
-        console.log("title", title);
         return title;
     });
     done();

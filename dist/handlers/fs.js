@@ -27,13 +27,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.fileHandlerPlugin = void 0;
-const helpers_1 = require("./helpers");
 const fs = __importStar(require("fs"));
 const node_path_1 = __importDefault(require("node:path"));
+const validation_1 = require("../utils/validation");
 const fileHandlerPlugin = (fastify, opts, done) => {
-    fastify.post("/fs/stat", (0, helpers_1.jsonBodyWithProps)({
+    fastify.post("/fs/stat", (0, validation_1.jsonBodyWithProps)({
         filePath: { type: "string" },
     }), (request, reply) => {
+        if (!request.authorized)
+            return fastify.NOT_AUTHORIZED;
         const { filePath } = request.body;
         try {
             const { ctime, mtime, size } = fs.statSync(filePath);
@@ -43,7 +45,9 @@ const fileHandlerPlugin = (fastify, opts, done) => {
             return { error: "Failed" };
         }
     });
-    fastify.post("/fs/list", (0, helpers_1.jsonBodyWithProps)({}), async (request, reply) => {
+    fastify.post("/fs/list", (0, validation_1.jsonBodyWithProps)({}), async (request, reply) => {
+        if (!request.authorized)
+            return fastify.NOT_AUTHORIZED;
         const { dirPath } = request.body;
         try {
             const dirents = await fs.promises.readdir(dirPath, {
@@ -62,6 +66,8 @@ const fileHandlerPlugin = (fastify, opts, done) => {
         }
     });
     fastify.post("/fs/upload", async (request, reply) => {
+        if (!request.authorized)
+            return fastify.NOT_AUTHORIZED;
         let targetPath = null;
         try {
             for await (const part of request.parts()) {
@@ -113,6 +119,8 @@ const fileHandlerPlugin = (fastify, opts, done) => {
         }
     });
     fastify.get("/fs/download/:filePath", async (request, reply) => {
+        if (!request.authorized)
+            return fastify.NOT_AUTHORIZED;
         const { filePath } = request.params;
         const { range } = request.headers;
         try {

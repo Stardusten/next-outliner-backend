@@ -19,8 +19,8 @@ const messageAwareness = 1;
 // const messageAuth = 2
 const wsReadyStateConnecting = 0;
 const wsReadyStateOpen = 1;
-const wsReadyStateClosing = 2; // eslint-disable-line
-const wsReadyStateClosed = 3; // eslint-disable-line
+const wsReadyStateClosing = 2;
+const wsReadyStateClosed = 3;
 const allDocs = new Map();
 const mkWSSharedDoc = (docName, location, options) => {
     const doc = new Y.Doc(options);
@@ -63,7 +63,7 @@ const mkWSSharedDoc = (docName, location, options) => {
         provider: ldb,
         bindState: async (doc) => {
             const persistedYdoc = await ldb.getYDoc(doc.name);
-            console.log("load doc from db, blocks-size=", persistedYdoc.getMap("blocks").size, ", repeatables-size-", persistedYdoc.getMap("repeatables").size);
+            console.log("load doc from db, blocks-size=", persistedYdoc.getMap("blocks").size, ", repeatables-size=", persistedYdoc.getMap("repeatables").size);
             const newUpdates = Y.encodeStateAsUpdate(doc);
             await ldb.storeUpdate(doc.name, newUpdates);
             Y.applyUpdate(doc, Y.encodeStateAsUpdate(persistedYdoc));
@@ -205,16 +205,40 @@ const wsHandlerPlugin = (fastify, opts, done) => {
         }
         catch (err) {
             fastify.log.info(`invalid url ${req.url}`);
-            return;
+            socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
+            socket.destroy();
         }
         const params = url.searchParams;
-        if (params.has("docName") && params.has("location")) {
+        if (params.has("docName") &&
+            params.has("location") &&
+            params.has("location")) {
+            const docName = params.get("docName");
+            const location = params.get("location");
+            const authorization = params.get("authorization");
+            // 鉴权
+            if (!authorization) {
+                fastify.log.info("missing authorization");
+                socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
+                socket.destroy();
+                return;
+            }
+            try {
+                fastify.jwt.verify(authorization);
+            }
+            catch (err) {
+                fastify.log.info("authorization failed");
+                socket.write("HTTP/1.1 403 Forbidden\r\n\r\n");
+                socket.destroy();
+                return;
+            }
             wss.handleUpgrade(req, socket, head, (ws) => {
-                wss.emit("connection", ws, params.get("docName"), params.get("location"));
+                wss.emit("connection", ws, docName, location);
             });
         }
         else {
             fastify.log.info("invalid ws request, missing `docName` or `location`");
+            socket.write("HTTP/1.1 400 Bad Request\r\n\r\n");
+            socket.destroy();
         }
     });
     return done();

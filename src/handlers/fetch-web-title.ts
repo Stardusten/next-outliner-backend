@@ -1,7 +1,7 @@
 import { FastifyPluginCallback } from "fastify";
-import { jsonBodyWithProps } from "./helpers";
 import axios from "axios";
 import * as he from "html-entities";
+import { jsonBodyWithProps } from "../utils/validation";
 
 export const fetchWebTitlePlugin: FastifyPluginCallback = (
   fastify,
@@ -14,6 +14,7 @@ export const fetchWebTitlePlugin: FastifyPluginCallback = (
       webpageUrl: { type: "string" },
     }),
     async (request, reply) => {
+      if (!request.authorized) return fastify.NOT_AUTHORIZED;
       let { webpageUrl } = request.body as any;
       const inner = async (url: string) => {
         const resp = await axios.get(url, {
@@ -39,7 +40,7 @@ export const fetchWebTitlePlugin: FastifyPluginCallback = (
           : webpageUrl;
       const title =
         (await inner("https://" + rawUrl)) || (await inner("http://" + rawUrl));
-      return title;
+      return { title };
     },
   );
   done();

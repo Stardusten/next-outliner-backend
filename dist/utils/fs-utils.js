@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isDirEmpty = void 0;
+exports.readFileAsString = exports.isFile = exports.isDirEmpty = void 0;
 const fs = __importStar(require("fs"));
 const isDirEmpty = (dir) => {
     try {
@@ -35,4 +35,32 @@ const isDirEmpty = (dir) => {
     }
 };
 exports.isDirEmpty = isDirEmpty;
+// 判断路径是否是文件
+const isFile = (filePath) => {
+    return new Promise((resolve) => {
+        fs.stat(filePath, (err, stats) => {
+            if (err) {
+                resolve(false);
+            }
+            else {
+                resolve(stats.isFile());
+            }
+        });
+    });
+};
+exports.isFile = isFile;
+// 读出文件内容为字符串
+const readFileAsString = (filePath) => {
+    return new Promise((resolve) => {
+        fs.readFile(filePath, "utf8", (err, data) => {
+            if (err) {
+                resolve(null);
+            }
+            else {
+                resolve(data);
+            }
+        });
+    });
+};
+exports.readFileAsString = readFileAsString;
 //# sourceMappingURL=fs-utils.js.map

@@ -27,13 +27,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.fetchWebTitlePlugin = void 0;
-const helpers_1 = require("./helpers");
 const axios_1 = __importDefault(require("axios"));
 const he = __importStar(require("html-entities"));
+const validation_1 = require("../utils/validation");
 const fetchWebTitlePlugin = (fastify, opts, done) => {
-    fastify.post("/fetch-webpage-title", (0, helpers_1.jsonBodyWithProps)({
+    fastify.post("/fetch-webpage-title", (0, validation_1.jsonBodyWithProps)({
         webpageUrl: { type: "string" },
     }), async (request, reply) => {
+        if (!request.authorized)
+            return fastify.NOT_AUTHORIZED;
         let { webpageUrl } = request.body;
         const inner = async (url) => {
             const resp = await axios_1.default.get(url, {
@@ -58,7 +60,7 @@ const fetchWebTitlePlugin = (fastify, opts, done) => {
                 ? webpageUrl.slice(7)
                 : webpageUrl;
         const title = (await inner("https://" + rawUrl)) || (await inner("http://" + rawUrl));
-        return title;
+        return { title };
     });
     done();
 };

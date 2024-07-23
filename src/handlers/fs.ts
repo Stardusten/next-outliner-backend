@@ -1,7 +1,7 @@
 import { FastifyPluginCallback } from "fastify";
-import { jsonBodyWithProps } from "./helpers";
 import * as fs from "fs";
 import path from "node:path";
+import { jsonBodyWithProps } from "../utils/validation";
 
 export const fileHandlerPlugin: FastifyPluginCallback = (
   fastify,
@@ -14,6 +14,7 @@ export const fileHandlerPlugin: FastifyPluginCallback = (
       filePath: { type: "string" },
     }),
     (request, reply) => {
+      if (!request.authorized) return fastify.NOT_AUTHORIZED;
       const { filePath } = request.body as any;
       try {
         const { ctime, mtime, size } = fs.statSync(filePath);
@@ -25,6 +26,7 @@ export const fileHandlerPlugin: FastifyPluginCallback = (
   );
 
   fastify.post("/fs/list", jsonBodyWithProps({}), async (request, reply) => {
+    if (!request.authorized) return fastify.NOT_AUTHORIZED;
     const { dirPath } = request.body as any;
     try {
       const dirents = await fs.promises.readdir(dirPath, {
@@ -43,6 +45,7 @@ export const fileHandlerPlugin: FastifyPluginCallback = (
   });
 
   fastify.post("/fs/upload", async (request, reply) => {
+    if (!request.authorized) return fastify.NOT_AUTHORIZED;
     let targetPath: string | null = null;
     try {
       for await (const part of request.parts()) {
@@ -88,6 +91,7 @@ export const fileHandlerPlugin: FastifyPluginCallback = (
   });
 
   fastify.get("/fs/download/:filePath", async (request, reply) => {
+    if (!request.authorized) return fastify.NOT_AUTHORIZED;
     const { filePath } = request.params as any;
     const { range } = request.headers;
     try {

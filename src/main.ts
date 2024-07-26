@@ -1,7 +1,7 @@
 import Fastify, { FastifyServerOptions, RouteShorthandOptions } from "fastify";
 import cors from "@fastify/cors";
 
-import { wsHandlerPlugin } from "./handlers/yjs-ws";
+import { wsHandlerPlugin } from "./handlers/ws";
 import { fileHandlerPlugin } from "./handlers/fs";
 import { fetchWebTitlePlugin } from "./handlers/fetch-web-title";
 import { fastifyMultipart } from "@fastify/multipart";
@@ -21,6 +21,7 @@ declare module "fastify" {
         location?: string;
         imagesDir?: string;
         attachmentsDir?: string;
+        backupsDir?: string;
         [key: string]: any;
       }[];
       [key: string]: any;

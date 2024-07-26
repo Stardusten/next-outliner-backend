@@ -28,7 +28,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fastify_1 = __importDefault(require("fastify"));
 const cors_1 = __importDefault(require("@fastify/cors"));
-const yjs_ws_1 = require("./handlers/yjs-ws");
+const ws_1 = require("./handlers/ws");
 const fs_1 = require("./handlers/fs");
 const fetch_web_title_1 = require("./handlers/fetch-web-title");
 const multipart_1 = require("@fastify/multipart");
@@ -55,7 +55,7 @@ const start = async () => {
     try {
         // 注册插件
         fastify.register(cors_1.default);
-        fastify.register(yjs_ws_1.wsHandlerPlugin);
+        fastify.register(ws_1.wsHandlerPlugin);
         fastify.register(multipart_1.fastifyMultipart);
         fastify.register(fs_1.fileHandlerPlugin);
         fastify.register(fetch_web_title_1.fetchWebTitlePlugin);

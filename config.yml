@@ -1,0 +1,13 @@
+host: 0.0.0.0 # 监听地址
+port: 8081 # 监听端口
+password: "Stardust's Next Outliner 2017949" # 登录密码
+# 自行替换为随机生成的字符串
+jwtSecret: "xDH$tkGcuh;C=F#g+X3-kB5t?;L/T5a%wz}ay!G8/6d3mBC.p4j$(y4_HL&:zhD8(%P;K:q(*1Fxe8q_R9)KZHW+gmn#BhvNJwM:K6Q5e1&x7teFQ{n4y6j4b]u&Ku]qw)YS3R[8m)&=3@Yqiu,)t}J={SU(h9vn[Q*V(8{-G,JHB?ABU/=mzry7qW&.=u*6m?B$j3f_u{!cfe&/9;YwkNag4ZUBvg4A+A%;qr*{QQ}bKt-minm4,x3VUw==2$z"
+logger: true # 是否打印日志
+maxParamLength: 500 # 不要改动
+
+databases:
+  - name: Stardust's Wiki
+    location: /home/stardust/Downloads/notes
+  - name: Demo Database
+    location: /home/stardust/Downloads/demodb

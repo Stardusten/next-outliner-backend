@@ -84,9 +84,9 @@ export class WsSharedDoc extends Y.Doc {
       });
 
       // 持久化到数据库
-      this.persistence.storeUpdate(location, update);
+      this.persistence.storeUpdate(DEFAULT_DOC_NAME, update);
       this.changedSinceLastCompact = true;
-      logger.info(`persist updates to database, doc ${location}`);
+      logger.info(`persist updates to database, doc ${DEFAULT_DOC_NAME} in ${this.location}`);
     });
 
     setInterval(() => this.__compact, options.compactInterval ?? 5000);
@@ -106,18 +106,19 @@ export class WsSharedDoc extends Y.Doc {
     const allDocs = await this.persistence.getAllDocNames();
     logger.info(`allDocs: ${allDocs} in ${this.location}`);
     if (!allDocs.includes(DEFAULT_DOC_NAME)) {
-      if (allDocs.length > 0) {  // TODO 仅作迁移用
-        const fromDocName = allDocs[0];
-        logger.info(`copy doc ${fromDocName} to ${DEFAULT_DOC_NAME}`);
-        const doc = await this.persistence.getYDoc(fromDocName);
-        await this.persistence.clearDocument(fromDocName);
-        await this.persistence.storeUpdate(DEFAULT_DOC_NAME, Y.encodeStateAsUpdate(doc));
-        await this.persistence.flushDocument(DEFAULT_DOC_NAME);
-      } else throw new Error(`doc ${this.location} not found in persistence`);
+      // if (allDocs.length > 0) {  // TODO 仅作迁移用
+      //  const fromDocName = allDocs[0];
+      //  logger.info(`copy doc ${fromDocName} to ${DEFAULT_DOC_NAME}`);
+      //  const doc = await this.persistence.getYDoc(fromDocName);
+      //  await this.persistence.clearDocument(fromDocName);
+      //  await this.persistence.storeUpdate(DEFAULT_DOC_NAME, Y.encodeStateAsUpdate(doc));
+      //  await this.persistence.flushDocument(DEFAULT_DOC_NAME);
+      // } else
+      throw new Error(`doc ${this.location} not found in persistence`);
     }
     const localDoc = await this.persistence.getYDoc(DEFAULT_DOC_NAME);
     Y.applyUpdate(this, Y.encodeStateAsUpdate(localDoc), "local");
-    logger.info(`load doc from persistence ${this.location}`);
+    logger.info(`load doc ${DEFAULT_DOC_NAME} from persistence ${this.location}`);
   }
 
   /**
@@ -127,7 +128,7 @@ export class WsSharedDoc extends Y.Doc {
     if (this.changedSinceLastCompact) {
       await this.persistence.flushDocument(DEFAULT_DOC_NAME);
       this.changedSinceLastCompact = false;
-      logger.info(`compact doc ${this.location}`);
+      logger.info(`compact doc ${DEFAULT_DOC_NAME} in ${this.location}`);
     }
   }
 
@@ -137,7 +138,8 @@ export class WsSharedDoc extends Y.Doc {
       conn.on("message", async (_msg: any) => {
         try {
           const msg = new Uint8Array(_msg);
-           // 等待文档从持久化存储中加载完成
+          // 等待文档从持久化存储中加载完成
+          await this.initPromise;
           const encoder = encoding.createEncoder();
           const decoder = decoding.createDecoder(msg);
           const messageType = decoding.readVarUint(decoder);
@@ -145,7 +147,6 @@ export class WsSharedDoc extends Y.Doc {
             case MESSAGE_SYNC:
               encoding.writeVarUint(encoder, MESSAGE_SYNC);
               syncProtocol.readSyncMessage(decoder, encoder, this, conn);
-              await this.initPromise;
               if (encoding.length(encoder) > 1) {
                 this.__sendOnConn(conn, encoding.toUint8Array(encoder));
               }

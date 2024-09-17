@@ -8,10 +8,6 @@ maxParamLength = 500 # 不要改动
 
 [[databases]]
 name = "Stardust's Wiki" # 数据库的名字
-location = "/home/stardust/Downloads/notes" # 数据库的位置
+location = "/root/notes" # 数据库的位置
 #attachmentsDir = "" # 数据库中附件的存放位置，默认为 ${location}/attachments
 #imagesDir = "" # 数据库中图片的存放位置，默认为 ${location}/attachments/images
-
-[[databases]]
-name = "Demo Database"
-location = "/home/stardust/Downloads/demodb"

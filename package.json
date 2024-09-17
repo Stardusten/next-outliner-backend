@@ -4,16 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc && node --watch dist/main.js"
+    "dev": "pnpm vite-node src/main.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "type": "module",
   "devDependencies": {
     "@types/node": "^20.12.12",
     "prettier": "3.2.5",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vite": "^5.4.5",
+    "vite-node": "^2.1.1",
+    "vitest": "^2.1.1"
   },
   "dependencies": {
     "@fastify/busboy": "^2.1.1",
@@ -24,13 +27,16 @@
     "@types/archiver": "^6.0.2",
     "@types/better-sqlite3": "^7.6.10",
     "archiver": "^7.0.1",
+    "awilix": "^11.0.0",
     "axios": "^1.7.2",
     "fastify": "^4.27.0",
     "fastify-plugin": "^4.5.1",
     "html-entities": "^2.5.2",
     "lib0": "^0.2.94",
     "lodash.debounce": "^4.0.8",
+    "mitt": "^3.0.1",
     "toml": "^3.0.0",
+    "winston": "^3.14.2",
     "ws": "^8.17.0",
     "y-leveldb": "^0.1.2",
     "y-protocols": "^1.0.6",

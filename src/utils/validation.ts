@@ -1,4 +1,4 @@
-export const jsonBodyWithProps = (props: object, required: string[] = []) => {
+export const json = (props: object, required: string[] = []) => {
   return {
     schema: {
       body: {
